@@ -1,4 +1,4 @@
-package rasterx
+package main
 
 import (
 	"bytes"
@@ -8,12 +8,13 @@ import (
 
 	"github.com/lafriks/go-svg"
 	"github.com/lafriks/go-svg/renderer"
+	rendr_rasterx "github.com/lafriks/go-svg/renderer/rasterx"
 
 	"github.com/srwiley/rasterx"
 )
 
-func ExampleDraw() {
-	s, err := svg.ParseFile("../../testdata/TestShapes6.svg", svg.WarnErrorMode)
+func main() {
+	s, err := svg.ParseFile("../../../testdata/TestShapes.svg", svg.WarnErrorMode)
 	if err != nil {
 		panic(err)
 	}
@@ -23,7 +24,7 @@ func ExampleDraw() {
 
 	gc := rasterx.NewDasher(256, 256, scanner)
 
-	Draw(gc, s, renderer.Target(0, 0, 256, 256))
+	rendr_rasterx.Draw(gc, s, renderer.Target(0, 0, 256, 256))
 
 	var b bytes.Buffer
 	// Write the image into the buffer
@@ -32,7 +33,7 @@ func ExampleDraw() {
 		panic(err)
 	}
 
-	err = ioutil.WriteFile("TestShapes.png", b.Bytes(), 0644)
+	err = ioutil.WriteFile("example.png", b.Bytes(), 0644)
 	if err != nil {
 		panic(err)
 	}

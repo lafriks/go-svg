@@ -39,14 +39,11 @@ func drawTo(gc *gg.Context, op svg.Operation, m svg.Matrix2D) {
 }
 
 func toLineCap(cap svg.CapMode) gg.LineCap {
-	if cap == svg.NilCap {
-		return toLineCap(svg.DefaultStyle.Join.TrailLineCap)
-	}
 	switch cap {
 	case svg.ButtCap, svg.CubicCap, svg.QuadraticCap:
 		return gg.LineCapButt
 	case svg.RoundCap:
-		return gg.LineCapButt
+		return gg.LineCapRound
 	case svg.SquareCap:
 		return gg.LineCapSquare
 	}

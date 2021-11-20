@@ -62,7 +62,10 @@ func toLineGap(gap svg.GapMode) rasterx.GapFunc {
 	return rasterx.FlatGap
 }
 
-func toLineCap(cap svg.CapMode) rasterx.CapFunc {
+func toLineCap(cap svg.CapMode, def rasterx.CapFunc) rasterx.CapFunc {
+	if cap == svg.NilCap {
+		return def
+	}
 	switch cap {
 	case svg.ButtCap:
 		return rasterx.ButtCap
@@ -93,19 +96,7 @@ func toLineJoin(join svg.JoinMode) rasterx.JoinMode {
 	case svg.Bevel:
 		return rasterx.Bevel
 	}
-	return rasterx.Bevel
-}
-
-// resolve gradient color
-func setColorFromPattern(color svg.Pattern, opacity float64, scanner rasterx.Scanner) {
-	switch color := color.(type) {
-	case svg.PlainColor:
-		scanner.SetColor(rasterx.ApplyOpacity(color, opacity))
-	case svg.Gradient:
-		_ = color.ApplyPathExtent(scanner.GetPathExtent())
-		rasterxGradient := toRasterxGradient(color)
-		scanner.SetColor(rasterxGradient.GetColorFunction(opacity))
-	}
+	return rasterx.Miter
 }
 
 func toRasterxGradient(grad svg.Gradient) rasterx.Gradient {
@@ -150,7 +141,14 @@ func drawTransformed(gc *rasterx.Dasher, svgp svg.SvgPath, opt *renderer.RenderO
 		}
 		filler.Stop(false)
 
-		setColorFromPattern(svgp.Style.FillerColor, svgp.Style.FillOpacity*opt.Opacity, filler.Scanner)
+		switch color := svgp.Style.FillerColor.(type) {
+		case svg.PlainColor:
+			filler.SetColor(rasterx.ApplyOpacity(color, svgp.Style.FillOpacity*opt.Opacity))
+		case svg.Gradient:
+			_ = color.ApplyPathExtent(filler.GetPathExtent())
+			g := toRasterxGradient(color)
+			filler.SetColor(g.GetColorFunction(svgp.Style.FillOpacity * opt.Opacity))
+		}
 		filler.Draw()
 	}
 	if svgp.Style.LinerColor != nil {
@@ -159,8 +157,8 @@ func drawTransformed(gc *rasterx.Dasher, svgp svg.SvgPath, opt *renderer.RenderO
 		stroker.SetStroke(
 			fixed.Int26_6(svgp.Style.LineWidth*64),
 			svgp.Style.Join.MiterLimit,
-			toLineCap(svgp.Style.Join.LeadLineCap),
-			toLineCap(svgp.Style.Join.TrailLineCap),
+			toLineCap(svgp.Style.Join.LeadLineCap, toLineCap(svgp.Style.Join.TrailLineCap, rasterx.ButtCap)),
+			toLineCap(svgp.Style.Join.TrailLineCap, rasterx.ButtCap),
 			toLineGap(svgp.Style.Join.LineGap),
 			toLineJoin(svgp.Style.Join.LineJoin))
 
@@ -169,7 +167,14 @@ func drawTransformed(gc *rasterx.Dasher, svgp svg.SvgPath, opt *renderer.RenderO
 		}
 		stroker.Stop(false)
 
-		setColorFromPattern(svgp.Style.FillerColor, svgp.Style.LineOpacity*opt.Opacity, stroker.Scanner)
+		switch color := svgp.Style.LinerColor.(type) {
+		case svg.PlainColor:
+			stroker.SetColor(rasterx.ApplyOpacity(color, svgp.Style.LineOpacity*opt.Opacity))
+		case svg.Gradient:
+			_ = color.ApplyPathExtent(stroker.GetPathExtent())
+			g := toRasterxGradient(color)
+			stroker.SetColor(g.GetColorFunction(svgp.Style.LineOpacity * opt.Opacity))
+		}
 		stroker.Draw()
 	}
 }
