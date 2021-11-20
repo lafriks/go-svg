@@ -11,7 +11,7 @@ import (
 // Draw the parsed SVG into the graphic context with the specified options.
 func Draw(gc *rasterx.Dasher, s *svg.Svg, opts ...renderer.RenderOption) {
 	opt := renderer.Options(s, opts...)
-	for _, svgp := range s.SVGPaths {
+	for _, svgp := range s.SvgPaths {
 		drawTransformed(gc, svgp, opt)
 	}
 }

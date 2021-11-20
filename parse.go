@@ -16,11 +16,12 @@ type (
 	// svgCursor is used while parsing SVG files
 	svgCursor struct {
 		pathCursor
-		svg                                     *Svg
-		styleStack                              []PathStyle
-		grad                                    *Gradient
-		inTitleText, inDescText, inGrad, inDefs bool
-		currentDef                              []definition
+		svg                                             *Svg
+		styleStack                                      []PathStyle
+		grad                                            *Gradient
+		inTitleText, inDescText, inGrad, inDefs, inMask bool
+		currentDef                                      []definition
+		mask                                            *SvgMask
 	}
 
 	// definition is used to store what's given in a def tag
@@ -126,6 +127,24 @@ func (c *svgCursor) parseTransform(v string) (Matrix2D, error) {
 		}
 	}
 	return m1, nil
+}
+
+func (c *svgCursor) parseSelector(v string) (string, error) {
+	if len(v) == 0 || v == "none" {
+		return "", nil
+	}
+	if strings.HasPrefix(v, "url(") {
+		i := strings.Index(v, ")")
+		if i < 0 {
+			return "", errParamMismatch
+		}
+		v = v[4:i]
+		if !strings.HasPrefix(v, "#") {
+			return "", fmt.Errorf("unsupported url selector: %s", v)
+		}
+		return v[1:], nil
+	}
+	return "", fmt.Errorf("unsupported selector: %s", v)
 }
 
 func (c *svgCursor) readStyleAttr(curStyle *PathStyle, k, v string) error {
@@ -259,6 +278,12 @@ func (c *svgCursor) readStyleAttr(curStyle *PathStyle, k, v string) error {
 			return err
 		}
 		curStyle.Transform = m
+	case "mask":
+		id, err := c.parseSelector(v)
+		if err != nil {
+			return err
+		}
+		curStyle.Masks = append(curStyle.Masks, id)
 	}
 	return nil
 }
@@ -340,8 +365,13 @@ func (c *svgCursor) readStartElement(se xml.StartElement) (err error) {
 	if len(c.path) > 0 {
 		//The svgCursor parsed a path from the xml element
 		pathCopy := append(Path{}, c.path...)
-		c.svg.SVGPaths = append(c.svg.SVGPaths,
-			SvgPath{Path: pathCopy, Style: c.styleStack[len(c.styleStack)-1]})
+		if c.inMask && c.mask != nil {
+			c.mask.SvgPaths = append(c.mask.SvgPaths,
+				SvgPath{Path: pathCopy, Style: c.styleStack[len(c.styleStack)-1]})
+		} else if !c.inMask {
+			c.svg.SvgPaths = append(c.svg.SvgPaths,
+				SvgPath{Path: pathCopy, Style: c.styleStack[len(c.styleStack)-1]})
+		}
 		c.path = c.path[:0]
 	}
 	return

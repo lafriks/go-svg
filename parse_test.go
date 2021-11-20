@@ -5,11 +5,12 @@ import (
 	"testing"
 )
 
-func parseSvg(t *testing.T, svgPath string) {
-	_, errSvg := ParseFile(svgPath, WarnErrorMode)
+func parseSvg(t *testing.T, svgPath string) *Svg {
+	s, errSvg := ParseFile(svgPath, WarnErrorMode)
 	if errSvg != nil {
 		t.Error(errSvg)
 	}
+	return s
 }
 
 func TestLandscapeIcons(t *testing.T) {
@@ -54,5 +55,12 @@ func TestInvalidXML(t *testing.T) {
 	_, err := Parse(strings.NewReader("dummy"), StrictErrorMode)
 	if err == nil {
 		t.Fatal("expected error on invalid input")
+	}
+}
+
+func TestMask(t *testing.T) {
+	s := parseSvg(t, "testdata/avatar.svg")
+	if len(s.SvgMasks) != 4 {
+		t.Fatal("expected to have 4 masks")
 	}
 }

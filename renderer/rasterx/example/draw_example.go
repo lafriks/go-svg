@@ -14,7 +14,7 @@ import (
 )
 
 func main() {
-	s, err := svg.ParseFile("../../../testdata/TestShapes.svg", svg.WarnErrorMode)
+	s, err := svg.ParseFile("../../../testdata/TestShapes6.svg", svg.WarnErrorMode)
 	if err != nil {
 		panic(err)
 	}

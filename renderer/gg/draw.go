@@ -1,6 +1,7 @@
 package gg
 
 import (
+	"image"
 	"image/color"
 
 	"github.com/lafriks/go-svg"
@@ -12,8 +13,8 @@ import (
 // Draw the parsed SVG into the graphic context with the specified options.
 func Draw(gc *gg.Context, s *svg.Svg, opts ...renderer.RenderOption) {
 	opt := renderer.Options(s, opts...)
-	for _, svgp := range s.SVGPaths {
-		drawTransformed(gc, svgp, opt)
+	for _, svgp := range s.SvgPaths {
+		drawTransformed(gc, s, svgp, svgp.Style.Transform.Mult(opt.Target), opt.Opacity)
 	}
 }
 
@@ -84,8 +85,15 @@ func toGradient(g svg.Gradient, opacity float64) gg.Gradient {
 }
 
 // drawTransformed draws the compiled SvgPath into the driver while applying transform t.
-func drawTransformed(gc *gg.Context, svgp svg.SvgPath, opt *renderer.RenderOptions) {
-	m := svgp.Style.Transform.Mult(opt.Target)
+func drawTransformed(gc *gg.Context, s *svg.Svg, svgp svg.SvgPath, m svg.Matrix2D, opacity float64) {
+	var mask *image.Alpha
+	if len(svgp.Style.Masks) > 0 {
+		mask = getMask(s, svgp.Style.Masks, gc.Image().Bounds(), m)
+	}
+
+	if mask != nil {
+		gc.SetMask(mask)
+	}
 
 	if svgp.Style.FillerColor != nil {
 		if svgp.Style.UseNonZeroWinding {
@@ -95,9 +103,9 @@ func drawTransformed(gc *gg.Context, svgp svg.SvgPath, opt *renderer.RenderOptio
 		}
 		switch c := svgp.Style.FillerColor.(type) {
 		case svg.PlainColor:
-			gc.SetFillStyle(gg.NewSolidPattern(toColor(c, svgp.Style.FillOpacity*opt.Opacity)))
+			gc.SetFillStyle(gg.NewSolidPattern(toColor(c, svgp.Style.FillOpacity*opacity)))
 		case svg.Gradient:
-			gc.SetFillStyle(toGradient(c, svgp.Style.FillOpacity*opt.Opacity))
+			gc.SetFillStyle(toGradient(c, svgp.Style.FillOpacity*opacity))
 		}
 	}
 	if svgp.Style.LinerColor != nil {
@@ -105,9 +113,9 @@ func drawTransformed(gc *gg.Context, svgp svg.SvgPath, opt *renderer.RenderOptio
 		gc.SetLineJoin(toLineJoin(svgp.Style.Join.LineJoin))
 		switch c := svgp.Style.LinerColor.(type) {
 		case svg.PlainColor:
-			gc.SetColor(toColor(c, svgp.Style.LineOpacity*opt.Opacity))
+			gc.SetColor(toColor(c, svgp.Style.LineOpacity*opacity))
 		case svg.Gradient:
-			gc.SetColor(toColor(svg.GetColor(c), svgp.Style.LineOpacity*opt.Opacity))
+			gc.SetColor(toColor(svg.GetColor(c), svgp.Style.LineOpacity*opacity))
 		}
 		gc.SetLineWidth(svgp.Style.LineWidth)
 		gc.SetDash(svgp.Style.Dash.Dash...)
@@ -128,4 +136,34 @@ func drawTransformed(gc *gg.Context, svgp svg.SvgPath, opt *renderer.RenderOptio
 	if svgp.Style.LinerColor != nil {
 		gc.Stroke()
 	}
+}
+
+func getMask(s *svg.Svg, masks []string, rectangle image.Rectangle, m svg.Matrix2D) *image.Alpha {
+	gc := gg.NewContext(rectangle.Dx(), rectangle.Dy())
+	mask, ok := s.SvgMasks[masks[len(masks)-1]]
+	if !ok {
+		// Mask was not found skip it.
+		return nil
+	}
+
+	// TODO: How mask position/size should be applied?
+	// w := mask.W
+	// if w == 0 {
+	// 	w = s.ViewBox.W
+	// }
+	// h := mask.H
+	// if h == 0 {
+	// 	h = s.ViewBox.H
+	// }
+
+	// if w != s.ViewBox.W || h != s.ViewBox.H {
+	// 	scaleW := mask.W / s.ViewBox.W
+	// 	scaleH := mask.H / s.ViewBox.H
+	// 	m = m.Translate(mask.X-s.ViewBox.X, mask.Y-s.ViewBox.Y).Scale(scaleW, scaleH)
+	// }
+
+	for _, op := range mask.SvgPaths {
+		drawTransformed(gc, s, op, m, 1)
+	}
+	return gc.AsMask()
 }

@@ -22,6 +22,8 @@ type PathStyle struct {
 	Dash                    DashOptions
 	FillerColor, LinerColor Pattern // either PlainColor or Gradient
 
+	Masks []string
+
 	Transform Matrix2D // current transform
 }
 
@@ -41,8 +43,9 @@ type Svg struct {
 	ViewBox      Bounds
 	Titles       []string // Title elements collect here
 	Descriptions []string // Description elements collect here
-	SVGPaths     []SvgPath
+	SvgPaths     []SvgPath
 	Transform    Matrix2D
+	SvgMasks     map[string]*SvgMask
 
 	Width, Height string // top level width and height attributes
 
@@ -55,7 +58,12 @@ type Svg struct {
 // is enough to draw many svgs. errMode determines if the svg ignores, errors out, or logs a warning
 // if it does not handle an element found in the svg file.
 func Parse(stream io.Reader, errMode ErrorMode) (*Svg, error) {
-	svg := &Svg{defs: make(map[string][]definition), grads: make(map[string]*Gradient), Transform: Identity}
+	svg := &Svg{
+		defs:      make(map[string][]definition),
+		grads:     make(map[string]*Gradient),
+		SvgMasks:  make(map[string]*SvgMask),
+		Transform: Identity,
+	}
 	svgCursor := &svgCursor{styleStack: []PathStyle{DefaultStyle}, svg: svg}
 	svgCursor.errorMode = errMode
 	decoder := xml.NewDecoder(stream)
@@ -96,6 +104,12 @@ func Parse(stream io.Reader, errMode ErrorMode) (*Svg, error) {
 						Tag: "endg",
 					})
 				}
+			case "mask":
+				if svgCursor.mask != nil {
+					svgCursor.svg.SvgMasks[svgCursor.mask.ID] = svgCursor.mask
+					svgCursor.mask = nil
+				}
+				svgCursor.inMask = false
 			case "title":
 				svgCursor.inTitleText = false
 			case "desc":

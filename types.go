@@ -132,4 +132,5 @@ var DefaultStyle = PathStyle{
 	},
 	FillerColor: NewPlainColor(0x00, 0x00, 0x00, 0xff),
 	Transform:   Identity,
+	Masks:       make([]string, 0),
 }

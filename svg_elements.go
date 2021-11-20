@@ -32,6 +32,7 @@ var drawFuncs = map[string]svgFunc{
 	"title":          titleF,
 	"linearGradient": linearGradientF,
 	"radialGradient": radialGradientF,
+	"mask":           maskF,
 }
 
 func svgF(c *svgCursor, attrs []xml.Attr) error {
@@ -105,6 +106,44 @@ func rectF(c *svgCursor, attrs []xml.Attr) error {
 		rx = ry
 	}
 	c.path.addRoundRect(x+c.curX, y+c.curY, w+x+c.curX, h+y+c.curY, rx, ry, 0)
+	return nil
+}
+
+func maskF(c *svgCursor, attrs []xml.Attr) error {
+	var x, y, w, h float64
+	var id string
+	var err error
+	for _, attr := range attrs {
+		switch attr.Name.Local {
+		case "id":
+			id = attr.Value
+			if len(id) == 0 {
+				return errZeroLengthID
+			}
+		case "x":
+			x, err = c.parseUnit(attr.Value, widthPercentage)
+		case "y":
+			y, err = c.parseUnit(attr.Value, heightPercentage)
+		case "width":
+			w, err = c.parseUnit(attr.Value, widthPercentage)
+		case "height":
+			h, err = c.parseUnit(attr.Value, heightPercentage)
+		}
+		if err != nil {
+			return err
+		}
+	}
+
+	c.inMask = true
+	c.mask = &SvgMask{
+		ID:        id,
+		X:         x,
+		Y:         y,
+		W:         w,
+		H:         h,
+		SvgPaths:  make([]SvgPath, 0),
+		Transform: Identity,
+	}
 	return nil
 }
 
