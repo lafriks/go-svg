@@ -97,6 +97,13 @@ func rectF(c *svgCursor, attrs []xml.Attr) error {
 	if w == 0 || h == 0 {
 		return nil
 	}
+	// If only one of rx or ry is specified, the other should be same
+	if rx != 0 && ry == 0 {
+		ry = rx
+	}
+	if ry != 0 && rx == 0 {
+		rx = ry
+	}
 	c.path.addRoundRect(x+c.curX, y+c.curY, w+x+c.curX, h+y+c.curY, rx, ry, 0)
 	return nil
 }
