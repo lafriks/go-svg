@@ -93,6 +93,8 @@ func drawTransformed(gc *gg.Context, s *svg.Svg, svgp svg.SvgPath, m svg.Matrix2
 
 	if mask != nil {
 		gc.SetMask(mask)
+	} else {
+		gc.ResetClip()
 	}
 
 	if svgp.Style.FillerColor != nil {
