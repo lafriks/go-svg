@@ -73,8 +73,8 @@ func (a Matrix2D) Mult(b Matrix2D) Matrix2D {
 		B: a.B*b.A + a.D*b.B,
 		C: a.A*b.C + a.C*b.D,
 		D: a.B*b.C + a.D*b.D,
-		E: a.A*b.E + a.C*b.F + a.E,
-		F: a.B*b.E + a.D*b.F + a.F}
+		E: a.A*b.E + a.C*b.F + a.E*b.A,
+		F: a.B*b.E + a.D*b.F + a.F*b.D}
 }
 
 // Identity is the identity matrix
@@ -190,10 +190,14 @@ func (t *matrixAdder) CubeBezier(b, c, d fixed.Point26_6) {
 }
 
 // MoveTo transform the operation `m` by applying `t`
-func (t Matrix2D) MoveTo(m OpMoveTo) fixed.Point26_6 { return t.TFixed(fixed.Point26_6(m)) }
+func (t Matrix2D) MoveTo(m OpMoveTo) fixed.Point26_6 {
+	return t.TFixed(fixed.Point26_6(m))
+}
 
 // LineTo transform the operation `m` by applying `t`
-func (t Matrix2D) LineTo(m OpLineTo) fixed.Point26_6 { return t.TFixed(fixed.Point26_6(m)) }
+func (t Matrix2D) LineTo(m OpLineTo) fixed.Point26_6 {
+	return t.TFixed(fixed.Point26_6(m))
+}
 
 // QuadTo transform the operation `m` by applying `t`
 func (t Matrix2D) QuadTo(m OpQuadTo) (fixed.Point26_6, fixed.Point26_6) {
