@@ -38,6 +38,7 @@ func Target(x, y, w, h float64) RenderOption {
 	return targetOption{X: x, Y: y, W: w, H: h}
 }
 
+// Options apply the options.
 func Options(s *svg.Svg, opts ...RenderOption) *RenderOptions {
 	r := &RenderOptions{
 		Opacity: 1,
