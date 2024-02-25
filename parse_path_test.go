@@ -55,5 +55,4 @@ func TestReadFloat(t *testing.T) {
 		c.points[2] != 0.67 || c.points[3] != 0.32 {
 		t.Error("read float failed", fStr, c.points)
 	}
-
 }

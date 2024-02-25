@@ -16,10 +16,11 @@ func main() {
 		panic(err)
 	}
 
-	rendr_gg.Draw(gc, s, renderer.Target(0, 0, 256, 256))
+	if err := rendr_gg.Draw(gc, s, renderer.Target(0, 0, 256, 256)); err != nil {
+		panic(err)
+	}
 
-	err = gc.SavePNG("example.png")
-	if err != nil {
+	if err = gc.SavePNG("example.png"); err != nil {
 		panic(err)
 	}
 }

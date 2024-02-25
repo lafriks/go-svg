@@ -1,13 +1,12 @@
 package svg
 
 import (
-	"fmt"
-	"strings"
-
 	"encoding/xml"
 	"errors"
+	"fmt"
 	"log"
 	"math"
+	"strings"
 
 	"golang.org/x/image/math/fixed"
 )
@@ -95,7 +94,8 @@ func (c *svgCursor) readTransformAttr(m1 Matrix2D, k string) (Matrix2D, error) {
 				C: c.points[2],
 				D: c.points[3],
 				E: c.points[4],
-				F: c.points[5]})
+				F: c.points[5],
+			})
 		} else {
 			return m1, errParamMismatch
 		}
@@ -363,7 +363,7 @@ func (c *svgCursor) readStartElement(se xml.StartElement) (err error) {
 	err = df(c, se.Attr)
 
 	if len(c.path) > 0 {
-		//The svgCursor parsed a path from the xml element
+		// The svgCursor parsed a path from the xml element
 		pathCopy := append(Path{}, c.path...)
 		if c.inMask && c.mask != nil {
 			c.mask.SvgPaths = append(c.mask.SvgPaths,

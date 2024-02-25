@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"image"
 	"image/png"
-	"io/ioutil"
+	"os"
 
 	"github.com/lafriks/go-svg"
 	"github.com/lafriks/go-svg/renderer"
@@ -33,7 +33,7 @@ func main() {
 		panic(err)
 	}
 
-	err = ioutil.WriteFile("example.png", b.Bytes(), 0644)
+	err = os.WriteFile("example.png", b.Bytes(), 0o644)
 	if err != nil {
 		panic(err)
 	}

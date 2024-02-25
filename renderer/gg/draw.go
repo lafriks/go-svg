@@ -11,11 +11,15 @@ import (
 )
 
 // Draw the parsed SVG into the graphic context with the specified options.
-func Draw(gc *gg.Context, s *svg.Svg, opts ...renderer.RenderOption) {
+func Draw(gc *gg.Context, s *svg.Svg, opts ...renderer.RenderOption) error {
 	opt := renderer.Options(s, opts...)
 	for _, svgp := range s.SvgPaths {
-		drawTransformed(gc, s, svgp, svgp.Style.Transform.Mult(opt.Target), opt.Opacity)
+		if err := drawTransformed(gc, s, svgp, svgp.Style.Transform.Mult(opt.Target), opt.Opacity); err != nil {
+			return err
+		}
 	}
+
+	return nil
 }
 
 func drawTo(gc *gg.Context, op svg.Operation, m svg.Matrix2D) {
@@ -85,14 +89,20 @@ func toGradient(g svg.Gradient, opacity float64) gg.Gradient {
 }
 
 // drawTransformed draws the compiled SvgPath into the driver while applying transform t.
-func drawTransformed(gc *gg.Context, s *svg.Svg, svgp svg.SvgPath, m svg.Matrix2D, opacity float64) {
+func drawTransformed(gc *gg.Context, s *svg.Svg, svgp svg.SvgPath, m svg.Matrix2D, opacity float64) error {
 	var mask *image.Alpha
 	if len(svgp.Style.Masks) > 0 {
-		mask = getMask(s, svgp.Style.Masks, gc.Image().Bounds(), m)
+		m, err := getMask(s, svgp.Style.Masks, gc.Image().Bounds(), m)
+		if err != nil {
+			return err
+		}
+		mask = m
 	}
 
 	if mask != nil {
-		gc.SetMask(mask)
+		if err := gc.SetMask(mask); err != nil {
+			return err
+		}
 	} else {
 		gc.ResetClip()
 	}
@@ -135,17 +145,20 @@ func drawTransformed(gc *gg.Context, s *svg.Svg, svgp svg.SvgPath, m svg.Matrix2
 			gc.Fill()
 		}
 	}
+
 	if svgp.Style.LinerColor != nil {
 		gc.Stroke()
 	}
+
+	return nil
 }
 
-func getMask(s *svg.Svg, masks []string, rectangle image.Rectangle, m svg.Matrix2D) *image.Alpha {
+func getMask(s *svg.Svg, masks []string, rectangle image.Rectangle, m svg.Matrix2D) (*image.Alpha, error) {
 	gc := gg.NewContext(rectangle.Dx(), rectangle.Dy())
 	mask, ok := s.SvgMasks[masks[len(masks)-1]]
 	if !ok {
 		// Mask was not found skip it.
-		return nil
+		return nil, nil
 	}
 
 	// TODO: How mask position/size should be applied?
@@ -165,7 +178,10 @@ func getMask(s *svg.Svg, masks []string, rectangle image.Rectangle, m svg.Matrix
 	// }
 
 	for _, op := range mask.SvgPaths {
-		drawTransformed(gc, s, op, m, 1)
+		if err := drawTransformed(gc, s, op, m, 1); err != nil {
+			return nil, err
+		}
 	}
-	return gc.AsMask()
+
+	return gc.AsMask(), nil
 }

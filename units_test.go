@@ -10,6 +10,7 @@ const float64EqualityThreshold = 1e-9
 func almostEqual(a, b float64) bool {
 	return math.Abs(a-b) <= float64EqualityThreshold
 }
+
 func TestUnits(t *testing.T) {
 	data := []struct {
 		s   string

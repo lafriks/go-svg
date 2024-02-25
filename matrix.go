@@ -74,7 +74,8 @@ func (a Matrix2D) Mult(b Matrix2D) Matrix2D {
 		C: a.A*b.C + a.C*b.D,
 		D: a.B*b.C + a.D*b.D,
 		E: a.A*b.E + a.C*b.F + a.E*b.A,
-		F: a.B*b.E + a.D*b.F + a.F*b.D}
+		F: a.B*b.E + a.D*b.F + a.F*b.D,
+	}
 }
 
 // Identity is the identity matrix
@@ -103,7 +104,7 @@ func (a Matrix2D) TransformVector(x1, y1 float64) (x2, y2 float64) {
 	return
 }
 
-//Scale matrix in x and y dimensions
+// Scale matrix in x and y dimensions
 func (a Matrix2D) Scale(x, y float64) Matrix2D {
 	return a.Mult(Matrix2D{
 		A: x,
@@ -111,10 +112,11 @@ func (a Matrix2D) Scale(x, y float64) Matrix2D {
 		C: 0,
 		D: y,
 		E: 0,
-		F: 0})
+		F: 0,
+	})
 }
 
-//SkewY skews the matrix in the Y dimension
+// SkewY skews the matrix in the Y dimension
 func (a Matrix2D) SkewY(theta float64) Matrix2D {
 	return a.Mult(Matrix2D{
 		A: 1,
@@ -122,10 +124,11 @@ func (a Matrix2D) SkewY(theta float64) Matrix2D {
 		C: 0,
 		D: 1,
 		E: 0,
-		F: 0})
+		F: 0,
+	})
 }
 
-//SkewX skews the matrix in the X dimension
+// SkewX skews the matrix in the X dimension
 func (a Matrix2D) SkewX(theta float64) Matrix2D {
 	return a.Mult(Matrix2D{
 		A: 1,
@@ -133,10 +136,11 @@ func (a Matrix2D) SkewX(theta float64) Matrix2D {
 		C: math.Tan(theta),
 		D: 1,
 		E: 0,
-		F: 0})
+		F: 0,
+	})
 }
 
-//Translate translates the matrix to the x , y point
+// Translate translates the matrix to the x , y point
 func (a Matrix2D) Translate(x, y float64) Matrix2D {
 	return a.Mult(Matrix2D{
 		A: 1,
@@ -144,10 +148,11 @@ func (a Matrix2D) Translate(x, y float64) Matrix2D {
 		C: 0,
 		D: 1,
 		E: x,
-		F: y})
+		F: y,
+	})
 }
 
-//Rotate rotate the matrix by theta
+// Rotate rotate the matrix by theta
 func (a Matrix2D) Rotate(theta float64) Matrix2D {
 	return a.Mult(Matrix2D{
 		A: math.Cos(theta),
@@ -155,7 +160,8 @@ func (a Matrix2D) Rotate(theta float64) Matrix2D {
 		C: -math.Sin(theta),
 		D: math.Cos(theta),
 		E: 0,
-		F: 0})
+		F: 0,
+	})
 }
 
 // matrixAdder add points to path after applying a  matrix M to all points

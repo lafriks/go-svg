@@ -50,7 +50,8 @@ func length(v fixed.Point26_6) fixed.Int26_6 {
 
 // addArc strokes a circular arc by approximation with bezier curves
 func addArc(p *matrixAdder, a, s1, s2 fixed.Point26_6, clockwise bool, trimStart,
-	trimEnd fixed.Int26_6, firstPoint func(p fixed.Point26_6)) (ps1, ds1, ps2, ds2 fixed.Point26_6) {
+	trimEnd fixed.Int26_6, firstPoint func(p fixed.Point26_6),
+) (ps1, ds1, ps2, ds2 fixed.Point26_6) {
 	// Approximate the circular arc using a set of cubic bezier curves by the method of
 	// L. Maisonobe, "Drawing an elliptical arc using polylines, quadratic
 	// or cubic Bezier curves", 2003
@@ -267,6 +268,6 @@ func findEllipseCenter(ra, rb *float64, rotX, startX, startY, endX, endY float64
 
 	// reverse scale
 	cx *= *ra / *rb
-	//Reverse rotate and translate back to original coordinates
+	// Reverse rotate and translate back to original coordinates
 	return cx*cos - cy*sin + startX, cx*sin + cy*cos + startY
 }
