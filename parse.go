@@ -60,7 +60,7 @@ func (c *svgCursor) readTransformAttr(m1 Matrix2D, k string) (Matrix2D, error) {
 		}
 	case "translate":
 		if ln == 1 {
-			m1 = m1.Translate(c.points[0], 0)
+			m1 = m1.Translate(c.points[0], c.points[0])
 		} else if ln == 2 {
 			m1 = m1.Translate(c.points[0], c.points[1])
 		} else {
@@ -80,7 +80,7 @@ func (c *svgCursor) readTransformAttr(m1 Matrix2D, k string) (Matrix2D, error) {
 		}
 	case "scale":
 		if ln == 1 {
-			m1 = m1.Scale(c.points[0], 0)
+			m1 = m1.Scale(c.points[0], c.points[0])
 		} else if ln == 2 {
 			m1 = m1.Scale(c.points[0], c.points[1])
 		} else {
