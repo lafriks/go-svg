@@ -412,6 +412,12 @@ func stopF(c *svgCursor, attrs []xml.Attr) error {
 	var err error
 	if c.inGrad {
 		stop := GradStop{Opacity: 1.0}
+		// parse style and push into attrs
+		attrs, err = appendStyleAttrs(attrs, "stop-color", "stop-opacity")
+		if err != nil {
+			return err
+		}
+
 		for _, attr := range attrs {
 			switch attr.Name.Local {
 			case "offset":
