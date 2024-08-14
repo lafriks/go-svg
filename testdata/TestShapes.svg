@@ -26,7 +26,7 @@
         stroke="springgreen" stroke-width="8" stroke-linecap="square" />
 
  <path d="M190, 120 L190, 109"
-          fill="none" stroke="black" stroke-width="22" stroke-miterlimit="211.2" stroke-linejoin="arc-limit" stroke-linegap="round" stroke-linecap="round" />
+          fill="none" stroke="black" stroke-width="22" stroke-miterlimit="211.2" stroke-linejoin="arc" stroke-linegap="round" stroke-linecap="round" />
 
 	   <path d="m 25,130 c 0,-40 50,-75 100,-75 -35,20 -50,50 -50,75z"
  		fill="none" stroke="springgreen" stroke-miterlimit="300"  stroke-linejoin="miter-clip" stroke-width="12"/> 
