@@ -158,6 +158,15 @@ func (c *svgCursor) readStyleAttr(curStyle *PathStyle, k, v string) error {
 		optCol, err := parseSVGColor(v)
 		curStyle.FillerColor = optCol.asPattern()
 		return err
+	case "fill-rule":
+		switch v {
+		case "evenodd":
+			curStyle.UseNonZeroWinding = false
+		case "nonzero":
+			curStyle.UseNonZeroWinding = true
+		default:
+			return c.handleError("unsupported value '%s' for <fill-rule>", v)
+		}
 	case "stroke":
 		gradient, ok := c.readGradURL(v, curStyle.LinerColor)
 		if ok {
