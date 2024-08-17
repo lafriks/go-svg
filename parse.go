@@ -108,8 +108,10 @@ func (c *svgCursor) readTransformAttr(m1 Matrix2D, k string) (Matrix2D, error) {
 func (c *svgCursor) parseTransform(v string) (Matrix2D, error) {
 	ts := strings.Split(v, ")")
 	m1 := c.styleStack[len(c.styleStack)-1].Transform
-	for _, t := range ts {
-		t = strings.TrimSpace(t)
+	// From the docs at https://devdoc.net/web/developer.mozilla.org/en-US/docs/Web/SVG/Attribute/transform.html:
+	// The items in the transform list are separated by whitespace and/or commas, and are applied from right to left.
+	for i := len(ts) - 1; i >= 0; i-- {
+		t := strings.TrimSpace(ts[i])
 		if len(t) == 0 {
 			continue
 		}

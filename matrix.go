@@ -106,14 +106,14 @@ func (a Matrix2D) TransformVector(x1, y1 float64) (x2, y2 float64) {
 
 // Scale matrix in x and y dimensions
 func (a Matrix2D) Scale(x, y float64) Matrix2D {
-	return a.Mult(Matrix2D{
-		A: x,
-		B: 0,
-		C: 0,
-		D: y,
-		E: 0,
-		F: 0,
-	})
+	return Matrix2D{
+		A: a.A * x,
+		B: a.B * y,
+		C: a.C * x,
+		D: a.D * y,
+		E: a.E * x,
+		F: a.F * y,
+	}
 }
 
 // SkewY skews the matrix in the Y dimension
@@ -142,14 +142,14 @@ func (a Matrix2D) SkewX(theta float64) Matrix2D {
 
 // Translate translates the matrix to the x , y point
 func (a Matrix2D) Translate(x, y float64) Matrix2D {
-	return a.Mult(Matrix2D{
-		A: 1,
-		B: 0,
-		C: 0,
-		D: 1,
-		E: x,
-		F: y,
-	})
+	return Matrix2D{
+		A: a.A,
+		B: a.B,
+		C: a.C,
+		D: a.D,
+		E: a.E + x,
+		F: a.F + y,
+	}
 }
 
 // Rotate rotate the matrix by theta
