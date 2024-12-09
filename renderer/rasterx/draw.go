@@ -152,10 +152,11 @@ func drawTransformed(gc *rasterx.Dasher, svgp svg.SvgPath, opt *renderer.RenderO
 		filler.Draw()
 	}
 	if svgp.Style.LinerColor != nil {
+		scale := (m.A + m.D) / 2
 		stroker := &gc.Stroker
 		stroker.Clear()
 		stroker.SetStroke(
-			fixed.Int26_6(svgp.Style.LineWidth*64),
+			fixed.Int26_6(svgp.Style.LineWidth*64*scale),
 			svgp.Style.Join.MiterLimit,
 			toLineCap(svgp.Style.Join.LeadLineCap, toLineCap(svgp.Style.Join.TrailLineCap, rasterx.ButtCap)),
 			toLineCap(svgp.Style.Join.TrailLineCap, rasterx.ButtCap),

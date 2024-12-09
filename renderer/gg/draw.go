@@ -129,7 +129,8 @@ func drawTransformed(gc *gg.Context, s *svg.Svg, svgp svg.SvgPath, m svg.Matrix2
 		case svg.Gradient:
 			gc.SetColor(toColor(svg.GetColor(c), svgp.Style.LineOpacity*opacity))
 		}
-		gc.SetLineWidth(svgp.Style.LineWidth)
+		scale := (m.A + m.D) / 2
+		gc.SetLineWidth(svgp.Style.LineWidth * scale)
 		gc.SetDash(svgp.Style.Dash.Dash...)
 		gc.SetDashOffset(svgp.Style.Dash.DashOffset)
 	}
