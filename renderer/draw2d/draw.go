@@ -97,8 +97,7 @@ func drawTransformed(gc draw2d.GraphicContext, svgp svg.SvgPath, opt *renderer.R
 		case svg.Gradient:
 			gc.SetStrokeColor(toGradient(c, svgp.Style.LineOpacity*opt.Opacity))
 		}
-		scale := (m.A + m.D) / 2
-		gc.SetLineWidth(svgp.Style.LineWidth * scale)
+		gc.SetLineWidth(svgp.Style.LineWidth * m.LineWidthScale())
 		gc.SetLineDash(svgp.Style.Dash.Dash, svgp.Style.Dash.DashOffset)
 	}
 
