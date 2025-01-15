@@ -155,7 +155,7 @@ func drawTransformed(gc *rasterx.Dasher, svgp svg.SvgPath, opt *renderer.RenderO
 		stroker := &gc.Stroker
 		stroker.Clear()
 		stroker.SetStroke(
-			fixed.Int26_6(svgp.Style.LineWidth*64),
+			fixed.Int26_6(svgp.Style.LineWidth*64*m.LineWidthScale()),
 			svgp.Style.Join.MiterLimit,
 			toLineCap(svgp.Style.Join.LeadLineCap, toLineCap(svgp.Style.Join.TrailLineCap, rasterx.ButtCap)),
 			toLineCap(svgp.Style.Join.TrailLineCap, rasterx.ButtCap),

@@ -214,3 +214,10 @@ func (t Matrix2D) QuadTo(m OpQuadTo) (fixed.Point26_6, fixed.Point26_6) {
 func (t Matrix2D) CubicTo(m OpCubicTo) (fixed.Point26_6, fixed.Point26_6, fixed.Point26_6) {
 	return t.TFixed(fixed.Point26_6(m[0])), t.TFixed(fixed.Point26_6(m[1])), t.TFixed(fixed.Point26_6(m[2]))
 }
+
+// LineWidthScale returns the mean of the horizontal and vertical scaling members.
+// It may be used when scaling line widths with a rasterizer that does not support
+// scaling a line's horizontal and vertical aspects independently.
+func (t Matrix2D) LineWidthScale() float64 {
+	return (t.A + t.D) / 2
+}
